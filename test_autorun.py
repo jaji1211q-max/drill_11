@@ -15,6 +15,16 @@ class AutoRunKeyboardTests(unittest.TestCase):
         self.boy = boy.Boy()
         self.boy.start_auto_run()
 
+    def test_a_key_starts_auto_run_from_sleep(self):
+        self.boy.end_auto_run()
+        self.boy.fall_asleep()
+
+        self.boy.start_auto_run()
+
+        self.assertEqual(self.boy.state, 'AUTO_RUN')
+        self.assertEqual(self.boy.move_direction, -1)
+        self.assertEqual(self.boy.face_dir, -1)
+
     def test_left_key_runs_left_and_returns_to_idle_when_released(self):
         self.boy.start_running(-1)
 

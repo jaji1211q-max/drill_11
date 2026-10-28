@@ -33,7 +33,7 @@ class Boy:
                 {'trigger': 'begin_run_left', 'source': 'AUTO_RUN', 'dest': 'RUN'},
                 {'trigger': 'begin_run_right', 'source': 'AUTO_RUN', 'dest': 'RUN'},
                 {'trigger': 'end_run', 'source': 'RUN', 'dest': 'IDLE'},
-                {'trigger': 'begin_auto_run', 'source': 'IDLE', 'dest': 'AUTO_RUN'},
+                {'trigger': 'begin_auto_run', 'source': ['IDLE', 'SLEEP'], 'dest': 'AUTO_RUN'},
                 {'trigger': 'end_auto_run', 'source': 'AUTO_RUN', 'dest': 'IDLE'},
             ],
             initial='IDLE',
@@ -62,7 +62,7 @@ class Boy:
         self.auto_run.enter()
 
     def start_auto_run(self):
-        if self.state == 'IDLE':
+        if self.state in ('IDLE', 'SLEEP'):
             self.begin_auto_run()
 
     def start_sleep(self):
