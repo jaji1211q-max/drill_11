@@ -25,6 +25,19 @@ class AutoRunKeyboardTests(unittest.TestCase):
         self.assertEqual(self.boy.move_direction, -1)
         self.assertEqual(self.boy.face_dir, -1)
 
+    def test_auto_run_speed_increases_over_time(self):
+        start_x = self.boy.x
+
+        self.boy.update()
+        initial_distance = start_x - self.boy.x
+
+        self.clock[0] = 1.0
+        previous_x = self.boy.x
+        self.boy.update()
+        later_distance = previous_x - self.boy.x
+
+        self.assertGreater(later_distance, initial_distance)
+
     def test_left_key_runs_left_and_returns_to_idle_when_released(self):
         self.boy.start_running(-1)
 
