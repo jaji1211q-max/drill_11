@@ -1,15 +1,8 @@
 from pico2d import *
 import math
 
+from autorun import AutoRun
 from transitions import Machine
-
-
-class AutoRun:
-    def enter(self):
-        print("hello")
-
-    def update(self):
-        pass
 
 
 class Boy:
@@ -23,7 +16,7 @@ class Boy:
         self.face_dir = 1
         self.move_direction = 0
         self.idle_started_at = get_time()
-        self.auto_run = AutoRun()
+        self.auto_run = AutoRun(self)
         self.image = load_image('animation_sheet.png')
         self.machine = Machine(
             model=self,
@@ -31,12 +24,12 @@ class Boy:
                 {'name': 'IDLE', 'on_enter': 'start_idle_timer'},
                 {'name': 'SLEEP', 'on_enter': 'start_sleep'},
                 {'name': 'RUN', 'on_enter': 'start_run'},
-                {'name': 'AUTO_RUN', 'on_enter': 'on_enter_auto_run'},
+                {'name': 'AUTO_RUN', 'on_enter': 'start_auto_run_state'},
             ],
             transitions=[
                 {'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'},
                 {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'},
-                {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
+                {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP', 'AUTO_RUN'], 'dest': 'RUN'},
                 {'trigger': 'end_run', 'source': 'RUN', 'dest': 'IDLE'},
                 {'trigger': 'begin_auto_run', 'source': 'IDLE', 'dest': 'AUTO_RUN'},
             ],
@@ -61,7 +54,7 @@ class Boy:
     def start_idle_timer(self):
         self.idle_started_at = get_time()
 
-    def on_enter_auto_run(self):
+    def start_auto_run_state(self):
         self.auto_run.enter()
 
     def start_auto_run(self):
@@ -90,6 +83,10 @@ class Boy:
             self.end_run()
 
     def draw(self):
+        if self.state == 'AUTO_RUN':
+            self.auto_run.draw()
+            return
+
         if self.state == 'RUN':
             source_y = 100 if self.face_dir == 1 else 0
             self.image.clip_draw(
