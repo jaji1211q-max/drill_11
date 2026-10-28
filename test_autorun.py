@@ -1,3 +1,5 @@
+import contextlib
+import io
 import unittest
 
 import autorun
@@ -26,6 +28,18 @@ class AutoRunKeyboardTests(unittest.TestCase):
 
         self.boy.stop_running()
         self.assertEqual(self.boy.state, 'IDLE')
+
+    def test_left_key_overrides_auto_run_direction_after_right_wall(self):
+        self.boy.x = self.boy.MAX_X - self.boy.RUN_SPEED
+        self.boy.move_direction = 1
+        self.boy.face_dir = 1
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.boy.auto_run.update()
+        self.assertEqual(self.boy.move_direction, -1)
+
+        self.boy.start_running(-1)
+        self.assertEqual(self.boy.state, 'RUN')
+        self.assertEqual(self.boy.move_direction, -1)
 
 
 if __name__ == '__main__':
