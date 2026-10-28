@@ -39,41 +39,72 @@ class AutoRunKeyboardTests(unittest.TestCase):
         self.assertGreater(later_distance, initial_distance)
 
     def test_auto_run_size_grows_and_draws_larger(self):
-        self.clock[0] = 2.0
-        self.boy.update()
+        calls = []
 
+        def capture_draw(_image, *args):
+            if len(args) == 6:
+                args = (*args, 100, 100)
+            calls.append(args)
+
+        self.boy.image = type(
+            'Image',
+            (),
+            {'clip_draw': capture_draw},
+        )()
+
+        self.boy.draw()
+        initial_size = calls[-1][-2:]
+        self.clock[0] = 2.0
+        self.boy.draw()
+        grown_size = calls[-1][-2:]
+
+        self.assertEqual(initial_size, (100, 100))
+        self.assertEqual(grown_size, (140, 140))
+
+    def test_auto_run_size_resets_when_interrupted_by_run(self):
+        calls = []
+
+        def capture_draw(_image, *args):
+            if len(args) == 6:
+                args = (*args, 100, 100)
+            calls.append(args)
+
+        self.boy.image = type(
+            'Image',
+            (),
+            {'clip_draw': capture_draw},
+        )()
+        self.clock[0] = 2.0
+        self.boy.draw()
+        self.assertEqual(calls[-1][-2:], (140, 140))
+
+        self.boy.start_running(-1)
+        self.boy.draw()
+
+        self.assertEqual(self.boy.state, 'RUN')
+        self.assertEqual(calls[-1][-2:], (100, 100))
+
+    def test_auto_run_size_resets_when_timeout_returns_to_idle(self):
         calls = []
         self.boy.image = type(
             'Image',
             (),
-            {'clip_draw': lambda _image, *args: calls.append(args)},
+            {
+                'clip_draw': lambda _image, *args: calls.append(
+                    args if len(args) > 6 else (*args, 100, 100)
+                )
+            },
         )()
-        self.boy.draw()
-
-        self.assertEqual(self.boy.auto_run.scale, 1.4)
-        self.assertEqual(calls[0][-2:], (140, 140))
-
-    def test_auto_run_size_resets_when_interrupted_by_run(self):
-        self.clock[0] = 2.0
-        self.boy.update()
-        self.assertGreater(self.boy.auto_run.scale, 1.0)
-
-        self.boy.start_running(-1)
-
-        self.assertEqual(self.boy.state, 'RUN')
-        self.assertEqual(self.boy.auto_run.scale, 1.0)
-
-    def test_auto_run_size_resets_when_timeout_returns_to_idle(self):
         self.clock[0] = 4.0
-        self.boy.update()
-        self.assertGreater(self.boy.auto_run.scale, 1.0)
-
+        self.boy.draw()
+        self.assertEqual(calls[-1][-2:], (180, 180))
         self.clock[0] = 5.0
         with contextlib.redirect_stdout(io.StringIO()):
             self.boy.update()
+        self.boy.draw()
 
         self.assertEqual(self.boy.state, 'IDLE')
-        self.assertEqual(self.boy.auto_run.scale, 1.0)
+        self.assertEqual(calls[-1][-2:], (100, 100))
 
     def test_left_key_runs_left_and_returns_to_idle_when_released(self):
         self.boy.start_running(-1)
