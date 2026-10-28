@@ -32,6 +32,7 @@ class Boy:
                 {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP', 'AUTO_RUN'], 'dest': 'RUN'},
                 {'trigger': 'end_run', 'source': 'RUN', 'dest': 'IDLE'},
                 {'trigger': 'begin_auto_run', 'source': 'IDLE', 'dest': 'AUTO_RUN'},
+                {'trigger': 'end_auto_run', 'source': 'AUTO_RUN', 'dest': 'IDLE'},
             ],
             initial='IDLE',
             auto_transitions=False,
@@ -49,7 +50,8 @@ class Boy:
                 self.MAX_X,
             )
         elif self.state == 'AUTO_RUN':
-            self.auto_run.update()
+            if self.auto_run.update():
+                self.end_auto_run()
 
     def start_idle_timer(self):
         self.idle_started_at = get_time()

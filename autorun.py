@@ -22,15 +22,14 @@ class AutoRun:
             self.boy.x = self.boy.MIN_X
             self.boy.move_direction = 1
             self.boy.face_dir = 1
-            return
-        if self.boy.move_direction > 0 and next_x >= self.boy.MAX_X:
+        elif self.boy.move_direction > 0 and next_x >= self.boy.MAX_X:
             print("hello")
             self.boy.x = self.boy.MAX_X
             self.boy.move_direction = -1
             self.boy.face_dir = -1
-            return
-
-        self.boy.x = next_x
+        else:
+            self.boy.x = next_x
+        just_timed_out = False
         if (
             not self.timeout_reported
             and self.started_at is not None
@@ -38,6 +37,8 @@ class AutoRun:
         ):
             print("hello")
             self.timeout_reported = True
+            just_timed_out = True
+        return just_timed_out
 
     def draw(self):
         self.boy.image.clip_draw(
