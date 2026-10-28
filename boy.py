@@ -4,6 +4,14 @@ import math
 from transitions import Machine
 
 
+class AutoRun:
+    def enter(self):
+        print("hello")
+
+    def update(self):
+        pass
+
+
 class Boy:
     MIN_X = 50
     MAX_X = 750
@@ -15,6 +23,7 @@ class Boy:
         self.face_dir = 1
         self.move_direction = 0
         self.idle_started_at = get_time()
+        self.auto_run = AutoRun()
         self.image = load_image('animation_sheet.png')
         self.machine = Machine(
             model=self,
@@ -22,12 +31,14 @@ class Boy:
                 {'name': 'IDLE', 'on_enter': 'start_idle_timer'},
                 {'name': 'SLEEP', 'on_enter': 'start_sleep'},
                 {'name': 'RUN', 'on_enter': 'start_run'},
+                {'name': 'AUTO_RUN', 'on_enter': 'on_enter_auto_run'},
             ],
             transitions=[
                 {'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'},
                 {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'},
                 {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
                 {'trigger': 'end_run', 'source': 'RUN', 'dest': 'IDLE'},
+                {'trigger': 'begin_auto_run', 'source': 'IDLE', 'dest': 'AUTO_RUN'},
             ],
             initial='IDLE',
             auto_transitions=False,
@@ -44,9 +55,18 @@ class Boy:
                 max(self.x + self.move_direction * self.RUN_SPEED, self.MIN_X),
                 self.MAX_X,
             )
+        elif self.state == 'AUTO_RUN':
+            self.auto_run.update()
 
     def start_idle_timer(self):
         self.idle_started_at = get_time()
+
+    def on_enter_auto_run(self):
+        self.auto_run.enter()
+
+    def start_auto_run(self):
+        if self.state == 'IDLE':
+            self.begin_auto_run()
 
     def start_sleep(self):
         self.frame = 0

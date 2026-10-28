@@ -13,6 +13,8 @@ def handle_events():
                 stop_game()
             elif event.key == SDLK_SPACE:
                 boy.handle_space()
+            elif event.key == SDLK_a:
+                boy.start_auto_run()
             elif event.key == SDLK_LEFT:
                 movement_keys.add(event.key)
                 boy.start_running(-1)
