@@ -29,7 +29,8 @@ class Boy:
             transitions=[
                 {'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'},
                 {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'},
-                {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP', 'AUTO_RUN'], 'dest': 'RUN'},
+                {'trigger': 'begin_run', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
+                {'trigger': 'begin_run_left', 'source': 'AUTO_RUN', 'dest': 'RUN'},
                 {'trigger': 'end_run', 'source': 'RUN', 'dest': 'IDLE'},
                 {'trigger': 'begin_auto_run', 'source': 'IDLE', 'dest': 'AUTO_RUN'},
                 {'trigger': 'end_auto_run', 'source': 'AUTO_RUN', 'dest': 'IDLE'},
@@ -76,7 +77,9 @@ class Boy:
     def start_running(self, direction):
         self.move_direction = direction
         self.face_dir = direction
-        if self.state != 'RUN':
+        if self.state == 'AUTO_RUN' and direction < 0:
+            self.begin_run_left()
+        elif self.state != 'RUN':
             self.begin_run()
 
     def stop_running(self):
