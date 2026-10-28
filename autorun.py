@@ -1,11 +1,18 @@
+from pico2d import get_time
+
+
 class AutoRun:
     def __init__(self, boy):
         self.boy = boy
+        self.started_at = None
+        self.timeout_reported = False
 
     def enter(self):
         self.boy.frame = 0
         self.boy.face_dir = -1
         self.boy.move_direction = -1
+        self.started_at = get_time()
+        self.timeout_reported = False
 
     def update(self):
         self.boy.frame = (self.boy.frame + 1) % 8
@@ -24,6 +31,13 @@ class AutoRun:
             return
 
         self.boy.x = next_x
+        if (
+            not self.timeout_reported
+            and self.started_at is not None
+            and get_time() - self.started_at >= 5
+        ):
+            print("hello")
+            self.timeout_reported = True
 
     def draw(self):
         self.boy.image.clip_draw(
