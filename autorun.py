@@ -9,15 +9,20 @@ class AutoRun:
 
     def update(self):
         self.boy.frame = (self.boy.frame + 1) % 8
-        next_x = self.boy.x - self.boy.RUN_SPEED
-        if next_x <= self.boy.MIN_X and self.boy.x > self.boy.MIN_X:
+        next_x = self.boy.x + self.boy.move_direction * self.boy.RUN_SPEED
+        if self.boy.move_direction < 0 and next_x <= self.boy.MIN_X:
             print("hello")
-        self.boy.x = max(next_x, self.boy.MIN_X)
+            self.boy.x = self.boy.MIN_X
+            self.boy.move_direction = 1
+            self.boy.face_dir = 1
+            return
+
+        self.boy.x = next_x
 
     def draw(self):
         self.boy.image.clip_draw(
             self.boy.frame * 100,
-            0,
+            100 if self.boy.face_dir == 1 else 0,
             100,
             100,
             self.boy.x,
