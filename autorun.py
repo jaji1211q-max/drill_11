@@ -19,6 +19,8 @@ class AutoRun:
         if self.boy.move_direction > 0 and next_x >= self.boy.MAX_X:
             print("hello")
             self.boy.x = self.boy.MAX_X
+            self.boy.move_direction = -1
+            self.boy.face_dir = -1
             return
 
         self.boy.x = next_x
