@@ -3,6 +3,8 @@ from pico2d import get_time
 
 class AutoRun:
     SPEED_GROWTH_PER_SECOND = 0.5
+    SIZE_GROWTH_PER_SECOND = 0.2
+    BASE_DRAW_SIZE = 100
 
     def __init__(self, boy):
         self.boy = boy
@@ -18,7 +20,7 @@ class AutoRun:
 
     def update(self):
         self.boy.frame = (self.boy.frame + 1) % 8
-        elapsed = max(0, get_time() - self.started_at)
+        elapsed = self.elapsed_time()
         speed = self.boy.RUN_SPEED * (
             1 + elapsed * self.SPEED_GROWTH_PER_SECOND
         )
@@ -45,7 +47,14 @@ class AutoRun:
             just_timed_out = True
         return just_timed_out
 
+    def elapsed_time(self):
+        if self.started_at is None:
+            return 0
+        return max(0, get_time() - self.started_at)
+
     def draw(self):
+        scale = 1 + self.elapsed_time() * self.SIZE_GROWTH_PER_SECOND
+        draw_size = int(self.BASE_DRAW_SIZE * scale)
         self.boy.image.clip_draw(
             self.boy.frame * 100,
             100 if self.boy.face_dir == 1 else 0,
@@ -53,4 +62,6 @@ class AutoRun:
             100,
             self.boy.x,
             self.boy.y,
+            draw_size,
+            draw_size,
         )
