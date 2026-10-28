@@ -15,6 +15,8 @@
 
 ## 상태 전이 설계
 
+![Auto Run 상태 다이어그램](./auto_run_state_diagram.png)
+
 ```mermaid
 stateDiagram-v2
     [*] --> IDLE
